@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="advection_funcs",
+    name="advection_functions",
     author="Geoffrey Pugsley",
     author_email="gjp23@imperial.ac.uk",
     description="Python functions for satellite and meteorological data",
