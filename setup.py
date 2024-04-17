@@ -2,7 +2,6 @@ from setuptools import setup
 
 setup(
     name="advection_funcs",
-    version="0.1.0",  # Update with your desired version number
     author="Geoffrey Pugsley",
     author_email="gjp23@imperial.ac.uk",
     description="Python functions for satellite and meteorological data",
