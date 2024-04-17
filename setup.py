@@ -16,13 +16,13 @@ import re
 
 setup(
     name="advection_funcs",
-    #version=verstr,
+    # version=verstr,
     author="Geoffrey Pugsley",
     author_email="gjp23@imperial.ac.uk",
     maintainer="Geoffrey Pugsley",
     maintainer_email="gjp23@imperial.ac.uk",
     description="Python functions for satellite and meteorological data ",
-    url = 'https://github.com/geoffreypugsley/advection_functions'
+    url='https://github.com/geoffreypugsley/advection_functions',
     license="Not currently open source",
     install_requires=[
         "xarray",
@@ -36,6 +36,6 @@ setup(
         "pyhdf",
     ],
     packages=["advection_functions"],
-    #package_dir={"csat2": "csat2"},
-    #package_data={"csat2": ["data/*", "config/*"]},
-)   
+    # package_dir={"csat2": "csat2"},
+    # package_data={"csat2": ["data/*", "config/*"]},
+)
