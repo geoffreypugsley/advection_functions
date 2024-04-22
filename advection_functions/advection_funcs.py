@@ -76,7 +76,7 @@ def get_min_max_lat_lon_time(file_path):
 
 def calculate_AMSR_metadata(year,month):
     '''
-    Function to calculate the metadata for the AMSR data
+    Function to calculate the metadata for the AMSR data for a given year and month
 
     Returns a dataframe with the metadata for the AMSR data
     '''
