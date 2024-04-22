@@ -18,5 +18,6 @@ setup(
         "google-cloud-storage",
         "pyyaml",
         "pyhdf",
+        "trackerlib",
     ],
 )
