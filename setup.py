@@ -7,7 +7,6 @@ setup(
     description="Python functions for satellite and meteorological data",
     url='https://github.com/geoffreypugsley/advection_functions',
     license="Not currently open source",
-    packages=["advection_functions"],
     install_requires=[
         "xarray",
         "numpy",
