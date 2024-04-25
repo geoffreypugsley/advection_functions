@@ -20,4 +20,7 @@ setup(
         "pyhdf",
         "trackerlib",
     ],
+    package_dir={"advection_functions": "advection_functions"},
+    packages=["advection_functions"],
+    package_data={"advection_functions": ["data/*", "config/*"]}
 )
