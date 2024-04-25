@@ -80,7 +80,7 @@ def calculate_AMSR_metadata(year,month):
 
     Returns a dataframe with the metadata for the AMSR data
     '''
-    data_directory = f'/home/gjp23/projects/tests/multiple_trajectories/AMSR/AMSR_data/{year}/{month}'
+    data_directory = f'/home/gjp23/projects/tests/multiple_trajectories/AMSR/AMSR_data/{year}/{int(month):02d}'
 
 
     start_date = datetime.datetime(1993, 1, 1, 0, 0, 0) # reference date for which the AMSR time is measure from

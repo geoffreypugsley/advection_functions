@@ -21,9 +21,10 @@ Algorithm
 
 '''
 
-import scipy.spatial.ckdtree as cKDTree # For fast nearest neighbour search
+
 import numpy as np
 import h5py
+from scipy.spatial import cKDTree  # For fast nearest neighbour search
 
 
 
@@ -47,7 +48,7 @@ def AMSR_colocated(gLon,gLat,gTime,AMSR_filename,AMSR_fieldname={'ChiSquared','E
     year = gTime.year
     month = gTime.month
 
-    data_path = f'/home/gjp23/projects/tests/multiple_trajectories/AMSR/AMSR_data/{year}/{'{:02d}'.format(int(month))}/{AMSR_filename}'
+    data_path = f'/home/gjp23/projects/tests/multiple_trajectories/AMSR/AMSR_data/{year}/{month:02d}/{AMSR_filename}'
     
     
     # Read in the AMSR data
@@ -68,4 +69,10 @@ def AMSR_colocated(gLon,gLat,gTime,AMSR_filename,AMSR_fieldname={'ChiSquared','E
     #times = AMSR_time[(AMSR_lat > 14)&(AMSR_lat<54)] ignore time for the time being as we can assume that the overpass occurs instantaneously; overpass takes place on the scale of minutes
 
 
-    tree = cKDTree.cKDTree(np.concatenate((lons[:, None], lats[:, None]), axis=1))
+    tree = cKDTree(np.concatenate((lons[:, None], lats[:, None]), axis=1))
+
+    distances, indices =tree.query(np.concatenate((gLon.flatten()[:, None], gLat.flatten()[:, None]), axis=1)) # Find the nearest neighbour in the AMSR data to each of the GOES pixels, this has the same 
+
+    data_colocated = data[indices]
+
+    return 
