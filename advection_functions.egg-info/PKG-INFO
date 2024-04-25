@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: advection-functions
+Version: 0.0.0
+Summary: Python functions for satellite and meteorological data
+Home-page: https://github.com/geoffreypugsley/advection_functions
+Author: Geoffrey Pugsley
+Author-email: gjp23@imperial.ac.uk
+License: Not currently open source

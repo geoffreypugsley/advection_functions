@@ -1,0 +1,10 @@
+xarray
+numpy
+scipy
+netCDF4
+matplotlib
+scikit-learn
+google-cloud-storage
+pyyaml
+pyhdf
+trackerlib
