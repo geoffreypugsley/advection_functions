@@ -1,92 +1,103 @@
-import datetime
+from datetime import datetime, timedelta
 import numpy as np
-import scipy as sp
-
+from advection_functions import advection_funcs
 
 class AirParcel:
-    def __init__(self, init_time: datetime.datetime, init_position: tuple, time_advected: datetime.timedelta, time_step: datetime.timedelta, wind_data):
-        self.init_time = init_time
-        self.init_position = init_position
-        self.time_advected = time_advected
-        self.time_step = time_step
-        self.wind_data = wind_data
-        self.data = {}  # Placeholder for parcel data
+    def __init__(self, start_time, duration, t_step, init_lat, init_lon, spatial_resolution, spatial_extent, wind_data):
+        self.start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")  # Start time of the simulation
+        self.time = self.start_time                        # this will update by a single time step each time
+        self.duration = duration                          # Duration of the simulation
+        self.t_step = t_step                              # Time step of the simulation
+        self.lat = init_lat                          # Initial latitude of the air parcel
+        self.lon = init_lon                          # Initial longitude of the air parcel
+        self.spatial_resolution = spatial_resolution      # Spatial resolution of the simulation
+        self.spatial_extent = spatial_extent              # Spatial extent of the simulation
+        self.wind_data = wind_data                        # Wind data for advection
+    
+    def get_wind(self):
+        return self.winddata.get_data(self.lon, self.lat, self.time)
+    
+    def update_pos(self):
+        wind = self.get_wind()
+        dist_x = wind[0] * (self.time_step.total_seconds() / 1000.0) # distance travelled in x direction in local cartesian coordinates in km
+        dist_y = wind[1] * (self.time_step.total_seconds() / 1000.0)
+        nlon, nlat = advection_funcs.xy_offset_to_ll(self.current_position[0], self.current_position[1], dist_x, dist_y) # returns the new lon and lat
+        
+        # Apply the mask of the initial position to the updated position: this is not correct
+        mask = self.current_position.mask
+        self.current_position = np.ma.array([nlon, nlat], mask=mask)
+        #print("Updated mask:", self.current_position.mask)  # Debugging
+        
+        self.current_time += self.time_step
 
-    def advect_parcel(self):
-        current_time = self.init_time
-        current_position = self.init_position
+    def advect_trajectory(self):
+        current_time = self.start_time
+        trajectories = []
 
-        while current_time < self.init_time + self.time_advected:
-            # Advect parcel with wind field data
-            current_position = self.__advect_with_wind(current_position, current_time)
-            # Calculate meteorological parameters and add data internally
-            self.calculate_and_add_data(current_position, current_time)
-            # Increment time
-            current_time += self.time_step
+        for _ in range(self.duration):
+            # Example advecting method, you can replace this with your own logic
+            # Here, we just move the air parcel by adding wind velocities
+            u_wind = self.wind_data[current_time]['u_wind']
+            v_wind = self.wind_data[current_time]['v_wind']
 
-    def __advect_with_wind(self, position, time):
-        # Placeholder function for advecting the parcel with wind data
-        # Replace this with actual implementation using wind data
-        return position  # Dummy implementation
+            new_lat = self.init_lat + u_wind * self.t_step
+            new_lon = self.init_lon + v_wind * self.t_step
 
-    def calculate_and_add_data(self, position, time):
-        # Placeholder function for calculating meteorological parameters and adding data
-        # Implement logic to calculate LWP, CF effective radius, optical depth, etc.
-        # using the parcel's position and time
-        lwp = self.calculate_lwp(position, time)
-        cf = self.calculate_cf(position, time)
-        effective_radius = self.calculate_effective_radius(position, time)
-        optical_depth = self.calculate_optical_depth(position, time)
-        self.add_data(time, lwp=lwp, cf=cf, effective_radius=effective_radius, optical_depth=optical_depth)
+            trajectories.append((current_time, new_lat, new_lon))
+            current_time += timedelta(hours=1)
 
-    def add_data(self, time_step, lwp=None, cf=None, effective_radius=None, optical_depth=None):
-        self.data[time_step] = {'LWP': lwp, 'CF': cf, 'Effective Radius': effective_radius, 'Optical Depth': optical_depth}
+        return trajectories
 
-    def get_data(self, time_step, attribute):
-        data_at_time_step = self.data.get(time_step, None)
-        if data_at_time_step:
-            return data_at_time_step.get(attribute, None)
-        else:
-            return None
-
-
-    def calculate_lwp(self, position, time):
-        # Placeholder for LWP calculation
-        # Replace this with actual LWP calculation
-        lwp =  # Calculate LWP
+    def calculate_lwp(self, lat, lon):
+        # Example calculation for LWP using dummy values
+        lwp = 0.001 * lat + 0.002 * lon
         return lwp
 
-
-    def calculate_cf(self, position, time):
-        # Placeholder for CF calculation
-        # Replace this with actual CF calculation
-        cf =  # Calculate CF
+    def calculate_cf(self, lat, lon):
+        # Example calculation for CF using dummy values
+        cf = 0.1 * lat + 0.05 * lon
         return cf
 
+    def get_data(self, product):
+        data = {}
 
-    def calculate_effective_radius(self, position, time):
-        # Placeholder for effective radius calculation
-        # Replace this with actual effective radius calculation
-        effective_radius =  # Calculate effective radius
-        return effective_radius
-    
-    def calculate_optical_depth(self, position, time):
-        # Placeholder for optical depth calculation
-        # Replace this with actual optical depth calculation
-        optical_depth =  # Calculate optical depth
-        return optical_depth
-    
-    
-    def position_at_time(self, time):
-        if time < self.init_time or time > self.init_time + self.time_advected:
-            return None  # Time is out of range
-        current_time = self.init_time
-        current_position = self.init_position
-        while current_time < time:
-            current_position = self.__advect_with_wind(current_position, current_time)
-            current_time += self.time_step
-        return current_position
+        for parcel_time, parcel_lat, parcel_lon in self.advect_trajectory():
+            if product == 'LWP':
+                data[parcel_time] = self.calculate_lwp(parcel_lat, parcel_lon)
+            elif product == 'CF':
+                data[parcel_time] = self.calculate_cf(parcel_lat, parcel_lon)
 
+        return data
+
+# Example wind data
+wind_data = {
+    datetime(2024, 5, 10, 0, 0, 0): {'u_wind': 10, 'v_wind': 5},
+    datetime(2024, 5, 10, 1, 0, 0): {'u_wind': 12, 'v_wind': 6},
+    # Add more wind data for each hour...
+}
+
+# Example usage:
+start_time = "2024-05-10 00:00:00"    # Start time of simulation
+duration = 24                          # Duration of simulation in hours
+t_step = 1                             # Time step of simulation in hours
+init_lat = 40.7128                     # Initial latitude of air parcel (e.g., latitude of New York City)
+init_lon = -74.0060                    # Initial longitude of air parcel (e.g., longitude of New York City)
+spatial_resolution = "1 km"            # Spatial resolution of simulation
+spatial_extent = "100x100 km"          # Spatial extent of simulation
+
+parcel = AirParcel(start_time, duration, t_step, init_lat, init_lon, spatial_resolution, spatial_extent, wind_data)
+
+# Get data for CF
+cf_data = parcel.get_data('CF')
+print("Cloud Fraction Data:")
+for time, cf in cf_data.items():
+    print(f"At {time}: CF = {cf}")
+
+# Get data for LWP
+lwp_data = parcel.get_data('LWP')
+print("\nLiquid Water Path Data:")
+for time, lwp in lwp_data.items():
+    print(f"At {time}: LWP = {lwp}")
 
 
 

@@ -29,6 +29,10 @@ from scipy.spatial import cKDTree  # For fast nearest neighbour search
 
 
 def AMSR_colocated(gLon,gLat,gTime,AMSR_filename,AMSR_fieldname={'ChiSquared','ErrorLWP','ErrorTPW','ErrorWind','LandPercentage','LiquidWaterPath','QualityFlag','ReynoldsSST','SunGlintAngle','TimeHR','TotalPrecipitableWater','WindSpeed'}):
+    assert AMSR_fieldname in {'ChiSquared', 'ErrorLWP', 'ErrorTPW', 'ErrorWind', 'LandPercentage',
+                         'LiquidWaterPath', 'QualityFlag', 'ReynoldsSST', 'SunGlintAngle',
+                         'TimeHR', 'TotalPrecipitableWater', 'WindSpeed'}, \
+           f"Invalid fieldname: {AMSR_fieldname}"
     '''
     Function to colocate AMSR data with GOES data#
 
@@ -59,7 +63,7 @@ def AMSR_colocated(gLon,gLat,gTime,AMSR_filename,AMSR_fieldname={'ChiSquared','E
         AMSR_lat = f['HDFEOS']['SWATHS']['AMSR2_Level2_Ocean_Suite']['Geolocation Fields']['Latitude'][:]
         AMSR_lon = f['HDFEOS']['SWATHS']['AMSR2_Level2_Ocean_Suite']['Geolocation Fields']['Longitude'][:]
         AMSR_time = f['HDFEOS']['SWATHS']['AMSR2_Level2_Ocean_Suite']['Geolocation Fields']['Time'][:]
-        AMSR_data = f['HDFEOS']['SWATHS']['AMSR2_Level2_Ocean_Suite']['Data Fields']['AMSR_fieldname'][:]
+        AMSR_data = f['HDFEOS']['SWATHS']['AMSR2_Level2_Ocean_Suite']['Data Fields'][AMSR_fieldname][:]
 
     ### Just consider the data that is in the same latitude band as the GOES CONUS data, so that we remove all instances when the satellite is close to the poles/ not overhead the region of interest
 
@@ -75,4 +79,6 @@ def AMSR_colocated(gLon,gLat,gTime,AMSR_filename,AMSR_fieldname={'ChiSquared','E
 
     data_colocated = data[indices]
 
-    return 
+    data_colocated_reshaped = data_colocated.reshape(gLon.shape)
+
+    return data_colocated_reshaped
